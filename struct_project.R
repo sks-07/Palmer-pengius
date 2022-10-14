@@ -122,6 +122,15 @@ head(mu)
 ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species)+geom_density(color="darkblue")+
   geom_vline(data=mu, aes(xintercept= grp.mean, color=species),
              linetype="dashed")
+
+ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species)+
+geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, fill="#FF6666") +geom_vline(data=mu, aes(xintercept= grp.mean, color=species),
+                                                     linetype="dashed")
+
+ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species) + 
+  geom_density() +facet_grid(species ~ .)+geom_vline(data=mu, aes(xintercept=grp.mean, color="red"),
+                                                     linetype="dashed")
 ######
 
 
