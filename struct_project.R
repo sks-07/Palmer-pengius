@@ -4,7 +4,7 @@ install.packages("LaplacesDemon")
 install.packages("fitdistrplus")
 install.packages("actuar")
 install.packages("distrMod")
-
+install.packages("flexsurv")
 ################################# library import#############################################
 library(multimode)
 library(palmerpenguins)
@@ -19,6 +19,7 @@ library(survival)
 library(actuar)
 library(distrMod)
 library(plyr)
+library(flexsurv)
 ############################### Generating dataset ##########################################
 
 my.student.number = 220602758 # Replace this with your student number
@@ -60,6 +61,25 @@ quant_checking <- function(variab,l_quant,u_quant,k){
 
 dist_plot <- function(variab,k){
   plotdist(variab, histo = TRUE, demp = TRUE,breaks = "default")
+}
+
+compare <- function(varg){
+  gammafit  <-  fitdist(varg, "gamma")
+  weibullfit  <-  fitdist(varg, "weibull")
+  lnormfit  <-  fitdist(varg, "lnorm") 
+  gengammafit  <-  fitdistrplus::fitdist(varg, "gengamma",
+                                         start=function(d) list(mu=mean(d),
+                                                                sigma=sd(d),
+                                                                Q=0))
+  #qqcomp(list(gammafit, weibullfit, lnormfit, gengammafit),
+  #       legendtext=c("gamma", "lnorm", "weibull", "gengamma"))
+  
+  par(mfrow = c(2, 2))
+  plot.legend <- c("Weibull", "lognormal", "gamma")
+  denscomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
+  qqcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
+  cdfcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
+  ppcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
 }
 
 #################################  dataset variables ###########################################
@@ -133,5 +153,18 @@ ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species) +
                                                      linetype="dashed")
 ######
 
+par(mfrow=c(1,3))
+box_plot(data_gen_spec$bill_length_mm,"data_gen_spec")
+box_plot(data_chi_spec$bill_length_mm,"data_chi_spec")
+box_plot(data_gen_spec$bill_length_mm,"data_Ade_spec")
+
+dist_plot(my.penguins$bill_length_mm,k)
+descdist(my.penguins$bill_length_mm)
+
+varg=female_data_chi_spec$bill_length_mm
+
+compare(varg)
 
 
+dS <- dip(female_data$bill_depth_mm, full = "all", debug = TRUE)
+plot(dS)
