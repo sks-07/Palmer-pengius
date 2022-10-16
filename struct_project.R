@@ -154,9 +154,29 @@ ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species) +
 ######
 
 par(mfrow=c(1,3))
-box_plot(data_gen_spec$bill_length_mm,"data_gen_spec")
-box_plot(data_chi_spec$bill_length_mm,"data_chi_spec")
-box_plot(data_gen_spec$bill_length_mm,"data_Ade_spec")
+box_plot(data_gen_spec$bill_length_mm,"Gentoo Bill Length")
+box_plot(data_chi_spec$bill_length_mm,"Chinstrap Bill Length")
+box_plot(data_gen_spec$bill_length_mm,"Adelie Bill Length")
+boxplot(body_mass_g ~ species, data = my.penguins)
+
+#par(mfrow=c(1,2))
+p1=ggplot(my.penguins, aes(y=bill_length_mm,x=species,fill=sex)) + geom_boxplot(outlier.colour="black")
+p2=ggplot(my.penguins, aes(y=bill_depth_mm,x=species,fill=sex)) + geom_boxplot(outlier.colour="black")
+p3=ggplot(my.penguins, aes(y=flipper_length_mm,x=species,fill=sex)) + geom_boxplot(outlier.colour="black")
+p4=ggplot(my.penguins, aes(y=body_mass_g,x=species,fill=sex)) + geom_boxplot(outlier.colour="black")
+
+p1+p2+p3+p4
+
+
+p1=ggplot(my.penguins, aes(y=bill_length_mm,x=island,fill=sex)) + geom_boxplot(outlier.colour="black")
+p2=ggplot(my.penguins, aes(y=bill_depth_mm,x=island,fill=sex)) + geom_boxplot(outlier.colour="black")
+p3=ggplot(my.penguins, aes(y=flipper_length_mm,x=island,fill=sex)) + geom_boxplot(outlier.colour="black")
+p4=ggplot(my.penguins, aes(y=body_mass_g,x=island,fill=sex)) + geom_boxplot(outlier.colour="black")
+
+p1+p2+p3+p4
+
+box_plot(female_data_chi_spec$bill_length_mm,"data_gen_spec")
+
 
 dist_plot(my.penguins$bill_length_mm,k)
 descdist(my.penguins$bill_length_mm)
@@ -168,3 +188,5 @@ compare(varg)
 
 dS <- dip(female_data$bill_depth_mm, full = "all", debug = TRUE)
 plot(dS)
+
+
