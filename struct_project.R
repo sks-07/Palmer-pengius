@@ -5,8 +5,12 @@ install.packages("fitdistrplus")
 install.packages("actuar")
 install.packages("distrMod")
 install.packages("flexsurv")
+install.packages("patchwork")
+install.packages("ggpub")
+install.packages("mixtools")
 ################################# library import#############################################
 library(multimode)
+library(mixtools)
 library(palmerpenguins)
 library(diptest)
 library(LaplacesDemon)
@@ -20,6 +24,8 @@ library(actuar)
 library(distrMod)
 library(plyr)
 library(flexsurv)
+library(patchwork)
+library(ggpubr)
 ############################### Generating dataset ##########################################
 
 my.student.number = 220602758 # Replace this with your student number
@@ -67,10 +73,10 @@ compare <- function(varg){
   gammafit  <-  fitdist(varg, "gamma")
   weibullfit  <-  fitdist(varg, "weibull")
   lnormfit  <-  fitdist(varg, "lnorm") 
-  gengammafit  <-  fitdistrplus::fitdist(varg, "gengamma",
-                                         start=function(d) list(mu=mean(d),
-                                                                sigma=sd(d),
-                                                                Q=0))
+  #gengammafit  <-  fitdistrplus::fitdist(varg, "gengamma",
+  #                                       start=function(d) list(mu=mean(d),
+   #                                                             sigma=sd(d),
+   #                                                             Q=0))
   #qqcomp(list(gammafit, weibullfit, lnormfit, gengammafit),
   #       legendtext=c("gamma", "lnorm", "weibull", "gengamma"))
   
@@ -80,6 +86,9 @@ compare <- function(varg){
   qqcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
   cdfcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
   ppcomp(list(weibullfit, lnormfit, gammafit), legendtext = plot.legend)
+  print(weibullfit$aic)
+  print(gammafit$aic)
+  print(lnormfit$aic)
 }
 
 #################################  dataset variables ###########################################
@@ -151,6 +160,42 @@ geom_histogram(aes(y=..density..), colour="black", fill="white")+
 ggplot(data=my.penguins, mapping = aes(x = bill_length_mm),color=species) + 
   geom_density() +facet_grid(species ~ .)+geom_vline(data=mu, aes(xintercept=grp.mean, color="red"),
                                                      linetype="dashed")
+
+
+#-------------------------------------------------------
+data_gen=my.penguins
+spec="species"
+#assign("color_spec",species)
+
+mu1 <- ddply(data_gen, spec, summarise, grp.mean=mean(bill_length_mm))
+head(mu)
+
+q1=ggplot(data=data_gen, mapping = aes(x = bill_length_mm),color=species)+geom_density(color="darkblue")+
+  geom_vline(data=mu1, aes(xintercept= grp.mean, color=species),
+             linetype="dashed")
+
+mu2 <- ddply(data_gen, spec, summarise, grp.mean=mean(bill_depth_mm))
+head(mu)
+
+q2=ggplot(data=data_gen, mapping = aes(x = bill_depth_mm),color=species)+geom_density(color="darkblue")+
+  geom_vline(data=mu2, aes(xintercept= grp.mean, color=species),
+             linetype="dashed")
+mu3 <- ddply(data_gen, spec, summarise, grp.mean=mean(flipper_length_mm))
+head(mu)
+
+q3=ggplot(data=data_gen, mapping = aes(x = flipper_length_mm),color=species)+geom_density(color="darkblue")+
+  geom_vline(data=mu3, aes(xintercept= grp.mean, color=species),
+             linetype="dashed")
+mu4 <- ddply(data_gen, spec, summarise, grp.mean=mean(body_mass_g))
+head(mu)
+
+q4=ggplot(data=data_gen, mapping = aes(x = body_mass_g),color=species)+geom_density(color="darkblue")+
+  geom_vline(data=mu4, aes(xintercept= grp.mean, color=species),
+             linetype="dashed")
+q1+q2+q3+q4+plot_annotation(title = "100 Penguins Data")
+
+
+
 ######
 
 par(mfrow=c(1,3))
@@ -181,12 +226,21 @@ box_plot(female_data_chi_spec$bill_length_mm,"data_gen_spec")
 dist_plot(my.penguins$bill_length_mm,k)
 descdist(my.penguins$bill_length_mm)
 
-varg=female_data_chi_spec$bill_length_mm
-
+varg=my.penguins$bill_depth_mm
 compare(varg)
 
 
 dS <- dip(female_data$bill_depth_mm, full = "all", debug = TRUE)
 plot(dS)
 
+out <- normalmixEM(my.penguins$bill_length_mm, k=2, epsilon = 1e-03, fast=TRUE)
 
+summary(out)
+#mode test
+modetest(data_gen_spec$bill_length_mm)
+locmodes(my.penguins$bill_length_mm,mod0=2,display=TRUE)
+is.unimodal(my.penguins$bill_length_mm)
+is.multimodal(my.penguins$bill_length_mm)
+is.bimodal(my.penguins$bill_length_mm)
+is.trimodal(my.penguins$bill_length_mm)
+bimodality_coefficient(my.penguins$bill_length_mm)
